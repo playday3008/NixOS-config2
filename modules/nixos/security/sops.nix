@@ -1,6 +1,7 @@
 # modules/nixos/security/sops.nix
 # sops-nix secrets management configuration
 {
+  config,
   pkgs,
   ...
 }:
@@ -17,15 +18,13 @@
     age.generateKey = true;
 
     # Secrets definitions
-    # Add your secrets here after creating secrets.yaml
-    # Example:
-    # secrets."personal/password" = {
-    #   neededForUsers = true;
-    # };
-    # secrets."work/password" = {
-    #   neededForUsers = true;
-    # };
-    # secrets."tailscale/authkey" = { };
+    secrets."personal/password" = {
+      neededForUsers = true;
+    };
+    secrets."work/password" = {
+      neededForUsers = true;
+    };
+    secrets."tailscale/authkey" = { };
   };
 
   # Ensure sops and age are available

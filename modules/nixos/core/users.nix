@@ -1,6 +1,7 @@
 # modules/nixos/core/users.nix
 # User account definitions
 {
+  config,
   lib,
   pkgs,
   ...
@@ -25,10 +26,8 @@
       "kvm" # KVM access
     ];
 
-    # Initial password - CHANGE THIS or use sops-nix
-    # Generate with: mkpasswd -m sha-512
-    hashedPasswordFile = lib.mkDefault null;
-    initialHashedPassword = lib.mkDefault "$6$rounds=500000$placeholder$placeholderplaceholderplaceholderplaceholderplaceholderplacehol";
+    # Password from sops-nix secrets
+    hashedPasswordFile = config.sops.secrets."personal/password".path;
 
     shell = pkgs.zsh;
   };
@@ -47,9 +46,8 @@
       "kvm" # KVM access
     ];
 
-    # Initial password - CHANGE THIS or use sops-nix
-    hashedPasswordFile = lib.mkDefault null;
-    initialHashedPassword = lib.mkDefault "$6$rounds=500000$placeholder$placeholderplaceholderplaceholderplaceholderplaceholderplacehol";
+    # Password from sops-nix secrets
+    hashedPasswordFile = config.sops.secrets."work/password".path;
 
     shell = pkgs.zsh;
   };

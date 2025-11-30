@@ -27,50 +27,65 @@
               };
             };
 
-            # Root partition (no encryption for easier VM testing)
-            root = {
+            # LUKS encrypted root partition
+            luks = {
               size = "100%";
               content = {
-                type = "btrfs";
-                extraArgs = [ "-f" ];
+                type = "luks";
+                name = "cryptroot";
 
-                subvolumes = {
-                  "@" = {
-                    mountpoint = "/";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
+                # LUKS settings
+                settings = {
+                  allowDiscards = true;
+                  bypassWorkqueues = true;
+                };
 
-                  "@home" = {
-                    mountpoint = "/home";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
+                # Password will be prompted during installation
+                # For automated installs, you can use keyFile
+                passwordFile = "/tmp/luks-password";
 
-                  "@nix" = {
-                    mountpoint = "/nix";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
+                content = {
+                  type = "btrfs";
+                  extraArgs = [ "-f" ];
 
-                  "@shared" = {
-                    mountpoint = "/shared";
-                    mountOptions = [
-                      "compress=zstd"
-                      "noatime"
-                    ];
-                  };
+                  subvolumes = {
+                    "@" = {
+                      mountpoint = "/";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
 
-                  # Swap subvolume (smaller for VM)
-                  "@swap" = {
-                    mountpoint = "/swap";
-                    swap.swapfile.size = "2G";
+                    "@home" = {
+                      mountpoint = "/home";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+
+                    "@nix" = {
+                      mountpoint = "/nix";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+
+                    "@shared" = {
+                      mountpoint = "/shared";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+
+                    # Swap subvolume (smaller for VM)
+                    "@swap" = {
+                      mountpoint = "/swap";
+                      swap.swapfile.size = "2G";
+                    };
                   };
                 };
               };

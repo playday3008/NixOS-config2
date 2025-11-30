@@ -36,7 +36,7 @@ services:
       - .:/workspace
       - nix-store:/nix
     working_dir: /workspace
-    command: nix flake check --no-build
+    command: nix flake check --no-build --all-systems
     environment:
       - NIX_CONFIG=experimental-features = nix-command flakes
 

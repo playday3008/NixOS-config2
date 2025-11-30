@@ -168,13 +168,5 @@
       # Formatter
       # ==================================================================
       formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.nixfmt-rfc-style);
-
-      # ==================================================================
-      # Disko Configurations
-      # ==================================================================
-      diskoConfigurations = {
-        framework = (self.nixosConfigurations.framework.extendModules { }).config.disko.devices;
-        vm = (self.nixosConfigurations.vm.extendModules { }).config.disko.devices;
-      };
     };
 }

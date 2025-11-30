@@ -54,5 +54,5 @@
   programs.starship.enableFishIntegration = true;
   programs.zoxide.enableFishIntegration = true;
   programs.fzf.enableFishIntegration = true;
-  programs.direnv.enableFishIntegration = true;
+  # Note: direnv fish integration is automatically enabled when both direnv and fish are enabled
 }

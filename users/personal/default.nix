@@ -49,7 +49,7 @@
     ]
     ++
       # Ladybird (if available)
-      [ pkgs.ladybird ]
+      # [ pkgs.ladybird ]
 
         # ===========================================================================
         # Communication (Personal)

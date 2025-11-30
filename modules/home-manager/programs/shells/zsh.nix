@@ -32,7 +32,7 @@
     '';
 
     # Shell options
-    initExtra = ''
+    initContent = ''
       # Better history search
       bindkey '^[[A' history-substring-search-up
       bindkey '^[[B' history-substring-search-down

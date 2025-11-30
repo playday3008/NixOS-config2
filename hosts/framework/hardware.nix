@@ -24,6 +24,9 @@
     "kvm-amd"
   ];
 
+  # Load AMD GPU early for Plymouth during LUKS prompt
+  boot.initrd.kernelModules = [ "amdgpu" ];
+
   # AMD CPU microcode
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 

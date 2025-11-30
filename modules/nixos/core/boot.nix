@@ -39,6 +39,9 @@
     consoleLogLevel = 0;
     initrd.verbose = false;
 
+    # Use systemd in initrd for Plymouth support during LUKS prompt
+    initrd.systemd.enable = true;
+
     # Kernel parameters
     kernelParams = [
       "quiet"

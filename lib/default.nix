@@ -3,7 +3,7 @@
 { inputs }:
 let
   # Single source of truth for state versions
-  stateVersion = "25.05";
+  stateVersion = "25.11";
 
   mkHost = import ./mkHost.nix { inherit inputs stateVersion; };
   mkHome = import ./mkHome.nix { inherit inputs stateVersion; };

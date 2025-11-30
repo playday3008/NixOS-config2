@@ -2,13 +2,12 @@
 # C/C++ development environment
 {
   pkgs,
-  lib,
   ...
 }:
 {
   home.packages = with pkgs; [
     # Compilers
-    (lib.lowPrio gcc)
+    #gcc-unwrapped
     clang
 
     # Build systems

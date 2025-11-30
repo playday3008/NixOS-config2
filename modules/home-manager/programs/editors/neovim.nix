@@ -49,7 +49,7 @@
       tree-sitter
 
       # Build tools for treesitter
-      gcc
+      clang
       gnumake
     ];
   };

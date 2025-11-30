@@ -33,9 +33,6 @@
   services.qemuGuest.enable = true;
   services.spice-vdagentd.enable = true;
 
-  # Simpler boot for VM
-  boot.plymouth.enable = lib.mkForce false;
-
   # Disable fingerprint in VM
   security.pam.services = {
     login.fprintAuth = lib.mkForce false;

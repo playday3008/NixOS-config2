@@ -8,7 +8,7 @@
 {
   home.packages = with pkgs; [
     # Compilers
-    (lib.lowPriority gcc)
+    (lib.lowPrio gcc)
     clang
 
     # Build systems

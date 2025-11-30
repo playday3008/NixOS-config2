@@ -2,9 +2,12 @@
 # Main library entry point - imports all helper functions
 { inputs }:
 let
-  mkHost = import ./mkHost.nix { inherit inputs; };
-  mkHome = import ./mkHome.nix { inherit inputs; };
+  # Single source of truth for state versions
+  stateVersion = "25.05";
+
+  mkHost = import ./mkHost.nix { inherit inputs stateVersion; };
+  mkHome = import ./mkHome.nix { inherit inputs stateVersion; };
 in
 {
-  inherit mkHost mkHome;
+  inherit mkHost mkHome stateVersion;
 }

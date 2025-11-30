@@ -1,6 +1,6 @@
 # lib/mkHome.nix
 # Helper function to create standalone Home Manager configurations
-{ inputs }:
+{ inputs, stateVersion }:
 {
   username,
   hostname,
@@ -25,9 +25,8 @@ let
     # Common configuration
     {
       home = {
-        inherit username;
+        inherit username stateVersion;
         homeDirectory = "/home/${username}";
-        stateVersion = "25.05";
       };
 
       # Enable home-manager to manage itself

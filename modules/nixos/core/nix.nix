@@ -2,6 +2,7 @@
 # Nix daemon and flake configuration
 {
   pkgs,
+  stateVersion,
   ...
 }:
 {
@@ -50,6 +51,6 @@
 
   # Allow unfree packages is set in lib/mkHost.nix when creating pkgs
 
-  # System state version
-  system.stateVersion = "25.05";
+  # System state version (defined in lib/default.nix)
+  system = { inherit stateVersion; };
 }

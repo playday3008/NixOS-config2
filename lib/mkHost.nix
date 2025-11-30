@@ -1,6 +1,6 @@
 # lib/mkHost.nix
 # Helper function to create NixOS configurations
-{ inputs }:
+{ inputs, stateVersion }:
 {
   hostname,
   system ? "x86_64-linux",
@@ -37,7 +37,7 @@ let
 
       # Make flake inputs available to modules
       _module.args = {
-        inherit inputs;
+        inherit inputs stateVersion;
       };
     }
   ];
@@ -46,6 +46,6 @@ inputs.nixpkgs.lib.nixosSystem {
   inherit system;
   modules = commonModules ++ extraModules;
   specialArgs = {
-    inherit inputs;
+    inherit inputs stateVersion;
   };
 }

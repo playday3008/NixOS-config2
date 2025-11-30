@@ -38,7 +38,8 @@ keys:
   - &admin age1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 creation_rules:
-  - path_regex: secrets/.*\.yaml$
+  # Paths are relative to .sops.yaml location
+  - path_regex: .*\.yaml$
     key_groups:
       - age:
           - *admin
@@ -47,11 +48,19 @@ creation_rules:
 ### 4. Create/Edit Secrets
 
 ```bash
+# Run sops from inside the secrets directory
+cd secrets
+
 # Create new secrets file
-sops secrets/secrets.yaml
+sops secrets.yaml
 
 # Or edit existing (after initial setup)
-sops secrets/secrets.yaml
+sops secrets.yaml
+```
+
+**Note**: You can also specify a custom age key file:
+```bash
+SOPS_AGE_KEY_FILE=/path/to/key.txt sops secrets.yaml
 ```
 
 ## Secrets Structure
@@ -131,7 +140,7 @@ In your NixOS configuration:
 
 1. Edit secrets file:
    ```bash
-   sops secrets/secrets.yaml
+   cd secrets && sops secrets.yaml
    ```
 
 2. Add new secret:
@@ -150,35 +159,82 @@ In your NixOS configuration:
    sudo nixos-rebuild switch --flake .#framework
    ```
 
-## Multiple Machines
+## Multiple Machines / Bootstrap Problem
 
-For multiple machines with different keys:
+When installing NixOS on a new machine, sops-nix generates a new age key. This key **cannot decrypt** secrets encrypted with a different key.
+
+### Option 1: Add new machine's key before install (recommended)
+
+1. Boot the new machine from NixOS ISO
+2. Generate age key and note public key:
+   ```bash
+   sudo mkdir -p /var/lib/sops-nix
+   sudo age-keygen -o /var/lib/sops-nix/key.txt
+   sudo age-keygen -y /var/lib/sops-nix/key.txt
+   # Outputs: age1xxxnewmachinekeyxxx...
+   ```
+
+3. On your existing machine, add the new key to `secrets/.sops.yaml`:
+   ```yaml
+   keys:
+     - &admin age1xxxadminkeyxxx...
+     - &newmachine age1xxxnewmachinekeyxxx...
+
+   creation_rules:
+     - path_regex: .*\.yaml$
+       key_groups:
+         - age:
+             - *admin
+             - *newmachine
+   ```
+
+4. Re-encrypt secrets with both keys:
+   ```bash
+   cd secrets && sops updatekeys secrets.yaml
+   ```
+
+5. Commit and push, then install on new machine
+
+### Option 2: Copy existing key to new machine
+
+Before installation, copy your existing age private key to the new machine:
+```bash
+# On new machine (from ISO)
+sudo mkdir -p /var/lib/sops-nix
+# Copy key content from existing machine
+sudo nano /var/lib/sops-nix/key.txt
+sudo chmod 600 /var/lib/sops-nix/key.txt
+```
+
+### Per-machine secrets (advanced)
+
+For machine-specific secrets files:
 
 ```yaml
-# .sops.yaml
+# secrets/.sops.yaml
 keys:
   - &framework age1xxxx...
-  - &server age1yyyy...
+  - &vm age1yyyy...
 
 creation_rules:
   # Framework-specific secrets
-  - path_regex: secrets/framework\.yaml$
+  - path_regex: framework\.yaml$
     key_groups:
       - age:
           - *framework
 
-  # Server-specific secrets
-  - path_regex: secrets/server\.yaml$
+  # VM-specific secrets
+  - path_regex: vm\.yaml$
     key_groups:
       - age:
-          - *server
+          - *vm
 
-  # Shared secrets (both can decrypt)
-  - path_regex: secrets/shared\.yaml$
+  # Shared secrets (all machines can decrypt)
+  - path_regex: secrets\.yaml$
     key_groups:
       - age:
           - *framework
-          - *server
+          - *vm
 ```
 
 ## Backup
@@ -201,7 +257,7 @@ The private key is needed to decrypt secrets. If lost, you'll need to:
 2. Add new public key to `.sops.yaml`
 3. Re-encrypt secrets:
    ```bash
-   sops updatekeys secrets/secrets.yaml
+   cd secrets && sops updatekeys secrets.yaml
    ```
 4. Remove old key from `.sops.yaml`
 5. Deploy to all machines

@@ -53,7 +53,40 @@ sudo nix run github:nix-community/disko -- \
 # sudo nix run github:nix-community/disko -- --mode disko --flake .#vm
 ```
 
-## Step 6: Install NixOS
+## Step 6: Setup Secrets (BEFORE Install)
+
+**Important**: Secrets must be configured before installation, otherwise the system won't be able to decrypt user passwords.
+
+### Option A: Generate key on target machine (recommended for new installs)
+
+```bash
+# Generate age key on this machine
+sudo mkdir -p /mnt/var/lib/sops-nix
+sudo age-keygen -o /mnt/var/lib/sops-nix/key.txt
+sudo chmod 600 /mnt/var/lib/sops-nix/key.txt
+
+# Get public key
+sudo age-keygen -y /mnt/var/lib/sops-nix/key.txt
+# Output: age1xxxxxxxxxxxxx...
+```
+
+Now on another machine (or use a phone/another terminal):
+1. Add the public key to `secrets/.sops.yaml`
+2. Re-encrypt secrets: `cd secrets && sops updatekeys secrets.yaml`
+3. Commit and push
+4. Pull changes: `git pull` (in /tmp/nixos-config)
+
+### Option B: Copy existing key
+
+If you already have a working sops setup, copy the existing key:
+```bash
+sudo mkdir -p /mnt/var/lib/sops-nix
+# Paste your existing key content
+sudo nano /mnt/var/lib/sops-nix/key.txt
+sudo chmod 600 /mnt/var/lib/sops-nix/key.txt
+```
+
+## Step 7: Install NixOS
 
 ```bash
 # Install system
@@ -62,7 +95,7 @@ sudo nixos-install --flake .#framework --no-root-passwd
 # The --no-root-passwd flag is used because we set user passwords declaratively
 ```
 
-## Step 7: Post-Installation Setup
+## Step 8: Post-Installation Setup
 
 ### Reboot
 
@@ -88,22 +121,6 @@ sudo nixos-rebuild switch --flake ~/Documents/GitHub/NixOS-config#framework
 sudo sbctl verify
 
 # Enable Secure Boot in BIOS
-```
-
-### Setup Secrets
-
-```bash
-# Generate age key
-age-keygen -o /var/lib/sops-nix/key.txt
-
-# Get public key and update .sops.yaml
-age-keygen -y /var/lib/sops-nix/key.txt
-
-# Edit secrets
-sops secrets/secrets.yaml
-
-# Rebuild to apply secrets
-sudo nixos-rebuild switch --flake .#framework
 ```
 
 ### Home Manager Setup

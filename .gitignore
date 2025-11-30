@@ -1,0 +1,29 @@
+# Nix build results
+result
+result-*
+
+# Direnv
+.direnv/
+
+# Editor files
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets (the encrypted file is OK, but not plaintext)
+# secrets/secrets.yaml is encrypted and safe to commit
+# DO NOT commit unencrypted secrets
+
+# Temporary files
+*.tmp
+*.bak
+
+# Age keys (NEVER commit these)
+*.age
+key.txt

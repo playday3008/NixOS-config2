@@ -1,0 +1,214 @@
+# Docker-based development environment for NixOS configuration
+# Run: docker compose run --rm <service>
+
+services:
+  # Main development shell
+  dev:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: nix develop --extra-experimental-features "nix-command flakes"
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Syntax check - validates Nix syntax
+  syntax-check:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Checking Nix syntax ===' &&
+        find . -name '*.nix' -exec nix-instantiate --parse {} \; &&
+        echo '✓ All files have valid syntax'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Flake check - full flake validation
+  flake-check:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: nix flake check --no-build
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Flake update - update all inputs
+  flake-update:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: nix flake update
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Update specific input
+  flake-update-input:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    entrypoint: ["nix", "flake", "lock", "--update-input"]
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Format all Nix files
+  format:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Formatting Nix files ===' &&
+        nix run nixpkgs#nixfmt-rfc-style -- . &&
+        echo '✓ Formatting complete'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Check formatting without modifying
+  format-check:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Checking format ===' &&
+        nix run nixpkgs#nixfmt-rfc-style -- --check . &&
+        echo '✓ All files properly formatted'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Lint with statix
+  lint:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Running statix linter ===' &&
+        nix run nixpkgs#statix -- check . &&
+        echo '✓ Linting complete'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Fix lint issues automatically
+  lint-fix:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Fixing lint issues ===' &&
+        nix run nixpkgs#statix -- fix . &&
+        echo '✓ Lint fixes applied'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Find dead code with deadnix
+  deadcode:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Finding dead code ===' &&
+        nix run nixpkgs#deadnix -- . &&
+        echo '✓ Dead code check complete'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Remove dead code
+  deadcode-fix:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Removing dead code ===' &&
+        nix run nixpkgs#deadnix -- -e . &&
+        echo '✓ Dead code removed'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Show flake info
+  flake-info:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: nix flake show
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Full CI check (runs all checks)
+  ci:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '========================================' &&
+        echo '         NixOS Config CI Check         ' &&
+        echo '========================================' &&
+        echo '' &&
+        echo '>>> Step 1/5: Syntax Check' &&
+        find . -name '*.nix' -exec nix-instantiate --parse {} \; > /dev/null &&
+        echo '✓ Syntax OK' &&
+        echo '' &&
+        echo '>>> Step 2/5: Format Check' &&
+        nix run nixpkgs#nixfmt-rfc-style -- --check . &&
+        echo '✓ Format OK' &&
+        echo '' &&
+        echo '>>> Step 3/5: Lint Check' &&
+        nix run nixpkgs#statix -- check . &&
+        echo '✓ Lint OK' &&
+        echo '' &&
+        echo '>>> Step 4/5: Dead Code Check' &&
+        nix run nixpkgs#deadnix -- . &&
+        echo '✓ No dead code' &&
+        echo '' &&
+        echo '>>> Step 5/5: Flake Check' &&
+        nix flake check --no-build &&
+        echo '✓ Flake OK' &&
+        echo '' &&
+        echo '========================================' &&
+        echo '         All checks passed! ✓          ' &&
+        echo '========================================'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+volumes:
+  nix-store:
+    name: nixos-config-nix-store

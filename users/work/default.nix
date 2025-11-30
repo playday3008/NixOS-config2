@@ -26,9 +26,9 @@
   # ===========================================================================
   # User Information
   # ===========================================================================
-  programs.git = {
-    userName = "Your Work Name"; # TODO: Change this
-    userEmail = "work@company.com"; # TODO: Change this
+  programs.git.settings.user = {
+    name = "Your Work Name"; # TODO: Change this
+    email = "work@company.com"; # TODO: Change this
   };
 
   # ===========================================================================
@@ -133,8 +133,11 @@
   # ===========================================================================
   programs.ssh = {
     enable = true;
-    addKeysToAgent = "yes";
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        addKeysToAgent = "yes";
+      };
       # Add work-specific SSH hosts here
       # "work-server" = {
       #   hostname = "server.company.com";

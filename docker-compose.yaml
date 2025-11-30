@@ -169,6 +169,86 @@ services:
     environment:
       - NIX_CONFIG=experimental-features = nix-command flakes
 
+  # Check all home-manager configurations (evaluation only)
+  hm-check-all:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Checking Home Manager Configurations ===' &&
+        echo '' &&
+        echo '>>> Checking personal@framework...' &&
+        nix eval .#homeConfigurations.\"personal@framework\".activationPackage --apply 'x: \"OK\"' &&
+        echo '✓ personal@framework OK' &&
+        echo '' &&
+        echo '>>> Checking work@framework...' &&
+        nix eval .#homeConfigurations.\"work@framework\".activationPackage --apply 'x: \"OK\"' &&
+        echo '✓ work@framework OK' &&
+        echo '' &&
+        echo '>>> Checking personal@vm...' &&
+        nix eval .#homeConfigurations.\"personal@vm\".activationPackage --apply 'x: \"OK\"' &&
+        echo '✓ personal@vm OK' &&
+        echo '' &&
+        echo '✓ All Home Manager configurations valid'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Dry-run build of all home-manager configurations
+  hm-build-check-all:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo '=== Dry-run Build: Home Manager Configurations ===' &&
+        echo '' &&
+        echo '>>> Building personal@framework (dry-run)...' &&
+        nix build .#homeConfigurations.\"personal@framework\".activationPackage --dry-run &&
+        echo '✓ personal@framework builds OK' &&
+        echo '' &&
+        echo '>>> Building work@framework (dry-run)...' &&
+        nix build .#homeConfigurations.\"work@framework\".activationPackage --dry-run &&
+        echo '✓ work@framework builds OK' &&
+        echo '' &&
+        echo '>>> Building personal@vm (dry-run)...' &&
+        nix build .#homeConfigurations.\"personal@vm\".activationPackage --dry-run &&
+        echo '✓ personal@vm builds OK' &&
+        echo '' &&
+        echo '✓ All Home Manager configurations build successfully'
+      "
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
+  # Check a specific home-manager configuration
+  # Usage: docker compose run --rm hm-check personal@framework
+  hm-check:
+    image: nixos/nix:latest
+    volumes:
+      - .:/workspace:ro
+      - nix-store:/nix
+    working_dir: /workspace
+    entrypoint:
+      - sh
+      - -c
+      - |
+        if [ -z "$$1" ]; then
+          echo "Usage: docker compose run --rm hm-check <config>"
+          echo "Available: personal@framework, work@framework, personal@vm"
+          exit 1
+        fi
+        echo "=== Checking Home Manager: $$1 ===" &&
+        nix build .#homeConfigurations."$$1".activationPackage --dry-run &&
+        echo "✓ $$1 OK"
+      - --
+    environment:
+      - NIX_CONFIG=experimental-features = nix-command flakes
+
   # Full CI check (runs all checks)
   ci:
     image: nixos/nix:latest
@@ -182,25 +262,31 @@ services:
         echo '         NixOS Config CI Check         ' &&
         echo '========================================' &&
         echo '' &&
-        echo '>>> Step 1/5: Syntax Check' &&
+        echo '>>> Step 1/6: Syntax Check' &&
         find . -name '*.nix' -exec nix-instantiate --parse {} \; > /dev/null &&
         echo '✓ Syntax OK' &&
         echo '' &&
-        echo '>>> Step 2/5: Format Check' &&
+        echo '>>> Step 2/6: Format Check' &&
         nix run nixpkgs#nixfmt-tree -- --check . &&
         echo '✓ Format OK' &&
         echo '' &&
-        echo '>>> Step 3/5: Lint Check' &&
+        echo '>>> Step 3/6: Lint Check' &&
         nix run nixpkgs#statix -- check . &&
         echo '✓ Lint OK' &&
         echo '' &&
-        echo '>>> Step 4/5: Dead Code Check' &&
+        echo '>>> Step 4/6: Dead Code Check' &&
         nix run nixpkgs#deadnix -- . &&
         echo '✓ No dead code' &&
         echo '' &&
-        echo '>>> Step 5/5: Flake Check' &&
+        echo '>>> Step 5/6: Flake Check' &&
         nix flake check --no-build &&
         echo '✓ Flake OK' &&
+        echo '' &&
+        echo '>>> Step 6/6: Home Manager Check' &&
+        nix eval .#homeConfigurations.\"personal@framework\".activationPackage --apply 'x: \"OK\"' > /dev/null &&
+        nix eval .#homeConfigurations.\"work@framework\".activationPackage --apply 'x: \"OK\"' > /dev/null &&
+        nix eval .#homeConfigurations.\"personal@vm\".activationPackage --apply 'x: \"OK\"' > /dev/null &&
+        echo '✓ Home Manager OK' &&
         echo '' &&
         echo '========================================' &&
         echo '         All checks passed! ✓          ' &&

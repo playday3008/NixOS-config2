@@ -29,9 +29,9 @@
   # ===========================================================================
   # User Information
   # ===========================================================================
-  programs.git = {
-    userName = "Your Name"; # TODO: Change this
-    userEmail = "personal@example.com"; # TODO: Change this
+  programs.git.settings.user = {
+    name = "Your Name"; # TODO: Change this
+    email = "personal@example.com"; # TODO: Change this
   };
 
   # ===========================================================================
@@ -150,8 +150,11 @@
   # ===========================================================================
   programs.ssh = {
     enable = true;
-    addKeysToAgent = "yes";
+    enableDefaultConfig = false;
     matchBlocks = {
+      "*" = {
+        addKeysToAgent = "yes";
+      };
       "github.com" = {
         hostname = "github.com";
         user = "git";

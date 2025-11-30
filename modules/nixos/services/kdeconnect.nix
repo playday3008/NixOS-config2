@@ -2,9 +2,7 @@
 # KDE Connect configuration
 # Note: Most KDE Connect setup is in plasma.nix
 # This module handles additional service configuration
-{
-  ...
-}:
+_:
 {
   # KDE Connect is enabled in plasma.nix via programs.kdeconnect.enable
 

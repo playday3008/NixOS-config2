@@ -1,8 +1,6 @@
 # modules/nixos/desktop/wayland.nix
 # Wayland-specific configuration
-{
-  ...
-}:
+_:
 {
   # Wayland environment variables
   environment.sessionVariables = {

@@ -1,8 +1,6 @@
 # modules/nixos/hardware/bluetooth.nix
 # Bluetooth configuration
-{
-  ...
-}:
+_:
 {
   # Enable Bluetooth
   hardware.bluetooth = {

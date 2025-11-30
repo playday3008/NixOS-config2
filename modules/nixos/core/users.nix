@@ -2,7 +2,6 @@
 # User account definitions
 {
   config,
-  lib,
   pkgs,
   ...
 }:

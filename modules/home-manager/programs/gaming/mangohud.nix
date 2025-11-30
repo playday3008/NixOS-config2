@@ -1,8 +1,6 @@
 # modules/home-manager/programs/gaming/mangohud.nix
 # MangoHud performance overlay configuration
-{
-  ...
-}:
+_:
 {
   programs.mangohud = {
     enable = true;

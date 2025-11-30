@@ -1,8 +1,6 @@
 # hosts/vm/disko.nix
 # Disko configuration for VM (simplified, no encryption)
-{
-  ...
-}:
+_:
 {
   disko.devices = {
     disk = {

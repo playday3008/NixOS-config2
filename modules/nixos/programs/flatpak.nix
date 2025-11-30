@@ -1,8 +1,6 @@
 # modules/nixos/programs/flatpak.nix
 # Flatpak support for additional applications
-{
-  ...
-}:
+_:
 {
   # Enable Flatpak
   services.flatpak.enable = true;

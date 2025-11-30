@@ -1,8 +1,6 @@
 # modules/home-manager/programs/shells/bash.nix
 # Bash configuration (secondary shell)
-{
-  ...
-}:
+_:
 {
   programs.bash = {
     enable = true;

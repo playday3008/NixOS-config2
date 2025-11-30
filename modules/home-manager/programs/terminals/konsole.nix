@@ -1,8 +1,6 @@
 # modules/home-manager/programs/terminals/konsole.nix
 # Konsole terminal emulator configuration
-{
-  ...
-}:
+_:
 {
   # Konsole is installed system-wide via KDE Plasma
   # This file configures user-specific settings

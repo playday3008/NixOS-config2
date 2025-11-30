@@ -1,7 +1,6 @@
 # modules/nixos/security/sops.nix
 # sops-nix secrets management configuration
 {
-  config,
   pkgs,
   ...
 }:

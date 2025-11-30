@@ -1,9 +1,7 @@
 # hosts/framework/disko.nix
 # Disko configuration for Framework Laptop 16
 # LUKS encrypted BTRFS with subvolumes
-{
-  ...
-}:
+_:
 {
   disko.devices = {
     disk = {

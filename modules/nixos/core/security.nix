@@ -1,8 +1,6 @@
 # modules/nixos/core/security.nix
 # Security, polkit, and sudo configuration
-{
-  ...
-}:
+_:
 {
   # Polkit for privilege escalation
   security.polkit.enable = true;

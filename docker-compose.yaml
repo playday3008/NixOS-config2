@@ -72,7 +72,7 @@ services:
     command: >
       sh -c "
         echo '=== Formatting Nix files ===' &&
-        nix run nixpkgs#nixfmt-rfc-style -- . &&
+        nix run nixpkgs#nixfmt-tree -- . &&
         echo '✓ Formatting complete'
       "
     environment:
@@ -88,7 +88,7 @@ services:
     command: >
       sh -c "
         echo '=== Checking format ===' &&
-        nix run nixpkgs#nixfmt-rfc-style -- --check . &&
+        nix run nixpkgs#nixfmt-tree -- --check . &&
         echo '✓ All files properly formatted'
       "
     environment:
@@ -187,7 +187,7 @@ services:
         echo '✓ Syntax OK' &&
         echo '' &&
         echo '>>> Step 2/5: Format Check' &&
-        nix run nixpkgs#nixfmt-rfc-style -- --check . &&
+        nix run nixpkgs#nixfmt-tree -- --check . &&
         echo '✓ Format OK' &&
         echo '' &&
         echo '>>> Step 3/5: Lint Check' &&

@@ -32,7 +32,7 @@
     # Plymouth boot splash
     plymouth = {
       enable = true;
-      theme = "breeze";
+      theme = "bgrt";
     };
 
     # Silent boot (reduce verbosity)
